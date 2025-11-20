@@ -90,29 +90,4 @@ npm run generate-abi # copies the contract ABI into `frontend/config/abi.json`.
 - `settleBet` restricts to post-target blocks, avoiding flash-bot griefing.
 - `withdraw` is owner-only for manual test drains; remove before mainnet if unnecessary.
 
-## Demo Video Script (≈90 seconds)
-
-1. **Intro (10s)** – “This is celo-block-parity, a MiniPay-native parity predictor.”
-2. **Load DApp (15s)** – Show ngrok URL loaded via MiniPay developer mode; point out Connect auto-hides.
-3. **Place Bet (20s)** – Pick EVEN, input 0.1 cUSD, confirm tx prompt explaining legacy gas + cUSD feeCurrency.
-4. **Wait & Settle (25s)** – Display live block counter, settle once target passes, watch toast + success modal.
-5. **Win/Lose Result (10s)** – Highlight payout or loss plus on-chain transparency.
-6. **Outro (10s)** – “Provably fair, low-fee gaming on Celo + MiniPay.”
-
-## Submission Checklist
-
-- [ ] GitHub repo pushed with README, license, docs.
-- [ ] Hardhat tests pass locally and via CI.
-- [ ] Deploy script executed; address copied into `frontend/config/contract.js`.
-- [ ] Frontend `.env` updated with RPC + contract + cUSD addresses.
-- [ ] Demo video recorded following script.
-- [ ] MiniPay test flow verified via `npm run dev:ngrok`.
-- [ ] Deployment instructions shared in submission form.
-
-## Suggested Commit Messages
-
-1. `feat: add parity smart contract and hardhat tooling`
-2. `feat: add Next.js frontend with MiniPay-ready viem helper`
-3. `docs: add README, contribution guidelines, and CI workflow`
-
 Happy hacking!
