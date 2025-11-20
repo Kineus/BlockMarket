@@ -1,0 +1,31 @@
+{
+  "name": "celo-block-parity",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Predict the next Celo block parity with cUSD bets using MiniPay.",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && next build",
+    "test": "npx hardhat test",
+    "lint": "cd frontend && next lint",
+    "format": "prettier --write \"**/*.{js,jsx,json,sol,md}\"",
+    "deploy": "npx hardhat run --network celoSepolia scripts/deploy.js",
+    "generate-abi": "npx hardhat compile && node scripts/export-abi.js",
+    "dev:ngrok": "node scripts/dev-ngrok.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "chai": "^4.3.10",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.13.0",
+    "hardhat": "^2.22.4",
+    "prettier": "^3.2.5",
+    "ngrok": "^4.3.3"
+  }
+}
+

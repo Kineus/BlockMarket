@@ -1,0 +1,118 @@
+## Environment & Installation
+
+1. `cp .env.example .env` then fill:
+   - `RPC_URL_SEPOLIA` – Celo testnet RPC (e.g., https://forno.celo-testnet.org).
+   - `PRIVATE_KEY` – deployer key (0x prefixed).
+   - `CUSD_ADDRESS_SEPOLIA` – cUSD token on Celo testnet.
+   - Frontend also uses `NEXT_PUBLIC_*` vars; keep them in sync post-deploy.
+   - `NGROK_AUTH_TOKEN` (optional) for `npm run dev:ngrok`.
+
+2. Install deps:
+
+   npm install
+   npm run install:frontend # optional helper: cd frontend && npm install
+
+   ## Smart Contract Workflow
+
+- Compile: `npx hardhat compile`
+- Test locally: `npm test`
+- Run local node (optional): `npx hardhat node`
+- Deploy: `npx hardhat run --network celoSepolia scripts/deploy.js`
+  - Save printed address.
+  - Fund the contract with cUSD before user bets (simple ERC20 transfer).
+
+## Sync ABI to Frontend
+
+After compilation or deployment:
+npm run generate-abi # copies the contract ABI into `frontend/config/abi.json`.
+
+## Frontend
+
+- Dev server: `npm run dev`
+- Prod build: `npm run build && npm start`
+- Tailwind configured with mobile-first styles.
+- Connect button auto-hides inside MiniPay thanks to `window.ethereum?.isMiniPay`.
+- Tx helper enforces `type: 'legacy'` + `feeCurrency = CUSD_ADDRESS` for MiniPay.
+
+## Ngrok for MiniPay Testing
+
+1. Ensure `NGROK_AUTH_TOKEN` is set.
+2. `npm run dev:ngrok`: starts Next dev server and prints the secure tunnel URL for MiniPay’s “Load test app” feature.
+3. Copy the URL into MiniPay’s Developer Mode page.
+
+## MiniPay Developer Mode Steps
+
+1. In MiniPay test build, enable `Settings → Advanced → Developer Mode`.
+2. Paste ngrok URL into “Load Test App”.
+3. MiniPay injects `window.ethereum` with `isMiniPay = true`, so the UI hides the connect button and directly calls viem legacy transactions.
+4. Complete flows: approve cUSD, place bet, wait ≥1 block, settle.
+
+## Placing & Settling Bets (User Flow)
+
+1. Connect wallet (unless MiniPay detected).
+2. View current block + predicted settle block.
+3. Select EVEN or ODD using the large buttons.
+4. Enter stake (e.g., 0.1 cUSD). Stake converts to wei client-side.
+5. `Place Bet` triggers viem `writeContract` with `feeCurrency`.
+6. Wait for the target block, then hit `Settle Bet`.
+7. Result modal announces win/loss and payout (2x stake on win). Anyone can settle once the block is past target.
+
+## Testing Expectations
+
+- `npm test` runs:
+  1. Bet placement transfers stake and stores data.
+  2. Winning settlement pays 2× stake and emits event.
+  3. Losing settlement leaves funds in contract.
+- CI (GitHub Actions) runs the same on push.
+
+## Dev Scripts
+
+- `npm run start` – runs `next start` from frontend (after build).
+- `npm run dev` – Next dev server.
+- `npm run build` – Next build.
+- `npm run test` – Hardhat tests.
+- `npm run lint` – `next lint`.
+- `npm run format` – Prettier across repo.
+- `npm run deploy` – Hardhat deploy (Celo Sepolia).
+- `npm run generate-abi` – Copies ABI to frontend.
+- `npm run dev:ngrok` – Next dev + ngrok tunnel.
+
+## MiniPay Notes
+
+- `feeCurrency` must be set to cUSD; replace placeholder in `frontend/config/constants.js`.
+- MiniPay currently supports only legacy (non-EIP-1559) tx; `sendLegacyTx` enforces `type: 'legacy'`.
+- `ResultModal` shows friendly states; toast notifications show pending/success/error.
+
+## Security & Gas Notes
+
+- Solidity ^0.8.19 gives built-in overflow checks; no SafeMath import needed.
+- All ERC20 transfers happen after state updates to deter reentrancy; comments note the precaution.
+- `settleBet` restricts to post-target blocks, avoiding flash-bot griefing.
+- `withdraw` is owner-only for manual test drains; remove before mainnet if unnecessary.
+
+## Demo Video Script (≈90 seconds)
+
+1. **Intro (10s)** – “This is celo-block-parity, a MiniPay-native parity predictor.”
+2. **Load DApp (15s)** – Show ngrok URL loaded via MiniPay developer mode; point out Connect auto-hides.
+3. **Place Bet (20s)** – Pick EVEN, input 0.1 cUSD, confirm tx prompt explaining legacy gas + cUSD feeCurrency.
+4. **Wait & Settle (25s)** – Display live block counter, settle once target passes, watch toast + success modal.
+5. **Win/Lose Result (10s)** – Highlight payout or loss plus on-chain transparency.
+6. **Outro (10s)** – “Provably fair, low-fee gaming on Celo + MiniPay.”
+
+## Submission Checklist
+
+- [ ] GitHub repo pushed with README, license, docs.
+- [ ] Hardhat tests pass locally and via CI.
+- [ ] Deploy script executed; address copied into `frontend/config/contract.js`.
+- [ ] Frontend `.env` updated with RPC + contract + cUSD addresses.
+- [ ] Demo video recorded following script.
+- [ ] MiniPay test flow verified via `npm run dev:ngrok`.
+- [ ] Deployment instructions shared in submission form.
+
+## Suggested Commit Messages
+
+1. `feat: add parity smart contract and hardhat tooling`
+2. `feat: add Next.js frontend with MiniPay-ready viem helper`
+3. `docs: add README, contribution guidelines, and CI workflow`
+
+Happy hacking!
